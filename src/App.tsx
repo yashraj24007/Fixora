@@ -10,6 +10,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 
 // Eager load critical pages (Index for initial load performance, Demo for AI Assistant)
 import Index from "./pages/Index";
@@ -78,6 +79,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <PWAInstallPrompt />
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <ScrollToTop />
               <ErrorBoundary>

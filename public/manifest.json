@@ -1,12 +1,12 @@
 {
   "name": "Fixora - AI Vehicle Service Assistant",
   "short_name": "Fixora",
-  "description": "AI-powered vehicle service assistant for repair manuals, diagnostics, and technical specifications",
+  "description": "AI-powered vehicle service assistant for repair manuals, diagnostics, and technical specifications. Works offline!",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0a0a",
   "theme_color": "#3b82f6",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "/logo.svg",
@@ -31,5 +31,22 @@
   "lang": "en-US",
   "dir": "ltr",
   "scope": "/",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "AI Assistant",
+      "short_name": "Assistant",
+      "description": "Chat with AI vehicle expert",
+      "url": "/demo",
+      "icons": [{ "src": "/logo.svg", "sizes": "96x96" }]
+    },
+    {
+      "name": "SOS Emergency",
+      "short_name": "SOS",
+      "description": "Find nearby service centers",
+      "url": "/sos-emergency",
+      "icons": [{ "src": "/logo.svg", "sizes": "96x96" }]
+    }
+  ]
 }
