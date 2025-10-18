@@ -663,17 +663,28 @@ const Assistant = () => {
         });
 
         const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api/chat', '') || 'http://localhost:3001';
+        console.log('🔗 Calling local model API:', `${backendUrl}/api/local-model`);
+        console.log('📝 Question:', userQuestion);
+        
         const response = await fetch(`${backendUrl}/api/local-model`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: userQuestion })
+        }).catch(err => {
+          console.error('❌ Fetch error:', err);
+          throw new Error(`Cannot connect to backend server. Is it running on ${backendUrl}?`);
         });
 
+        console.log('📡 Response status:', response.status);
+
         if (!response.ok) {
-          throw new Error('Local model API request failed');
+          const errorText = await response.text();
+          console.error('❌ API error:', errorText);
+          throw new Error(`Local model API failed (${response.status}): ${errorText}`);
         }
 
         const result = await response.json();
+        console.log('✅ Result:', result);
 
         if (!result.success) {
           throw new Error(result.error || 'Unknown error from local model');
@@ -852,15 +863,23 @@ Remember: You are a DOCUMENT-BASED assistant. Your knowledge is LIMITED to what'
       
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
       
+      // Different error messages based on AI mode
+      let troubleshootingSteps = '';
+      if (aiMode === 'local-model') {
+        troubleshootingSteps = `**Troubleshooting:**\n- Ensure backend server is running (npm run dev:server)\n- Check if Python is installed (python --version)\n- Verify pandas is installed (pip install pandas)\n- Check if dataset CSV file exists in root folder\n- Try with a different question (brake, engine, oil, etc.)\n- Check browser console for detailed errors`;
+      } else {
+        troubleshootingSteps = `**Troubleshooting:**\n- Ensure all selected documents are fully processed (status: ready)\n- Check if your Groq API key is configured in .env file\n- Verify your API key is valid at https://console.groq.com/\n- Try rephrasing your question or selecting different documents`;
+      }
+      
       // Add error message to chat
       const errorMsg: Message = {
         role: 'assistant',
-        content: `❌ **Error**: ${errorMessage}\n\n**Troubleshooting:**\n- Ensure all selected documents are fully processed (status: ready)\n- Check if your Groq API key is configured in .env file\n- Verify your API key is valid at https://console.groq.com/\n- Try rephrasing your question or selecting different documents`,
+        content: `❌ **Error**: ${errorMessage}\n\n${troubleshootingSteps}`,
       };
       setMessages(prev => [...prev, errorMsg]);
       
       toast({
-        title: "Failed to get AI response",
+        title: aiMode === 'local-model' ? "Local model error" : "Failed to get AI response",
         description: errorMessage,
         variant: "destructive",
       });
