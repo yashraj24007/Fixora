@@ -13,37 +13,43 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'logo.svg', 'robots.txt'],
+      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
         name: 'Fixora - AI Vehicle Service Assistant',
         short_name: 'Fixora',
-        description: 'AI-powered vehicle service assistant. Works offline!',
-        theme_color: '#3b82f6',
-        background_color: '#0a0a0a',
+        description: 'AI-powered vehicle diagnosis and repair assistance with offline support',
+        theme_color: '#2563eb',
+        background_color: '#ffffff',
         display: 'standalone',
-        orientation: 'any',
-        start_url: '/',
+        orientation: 'portrait',
         scope: '/',
+        start_url: '/',
         icons: [
           {
-            src: '/logo.svg',
-            sizes: 'any',
-            type: 'image/svg+xml',
+            src: '/android-chrome-192x192.png',
+            sizes: '192x192',
+            type: 'image/png',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/android-chrome-512x512.png',
+            sizes: '512x512',
+            type: 'image/png',
             purpose: 'any maskable'
           }
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
+            urlPattern: /^https:\/\/api\.groq\.com\/.*/i,
+            handler: 'NetworkFirst',
             options: {
-              cacheName: 'google-fonts-cache',
+              cacheName: 'groq-api-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 // 1 hour
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -51,14 +57,21 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/api\.groq\.com\/.*/i,
+            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'groq-api-cache',
+              cacheName: 'supabase-cache',
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
-              },
+              }
+            }
+          },
+          {
+            urlPattern: /\/api\/(local-model|chat)\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
               networkTimeoutSeconds: 10
             }
           }
