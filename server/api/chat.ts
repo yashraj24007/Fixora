@@ -57,7 +57,7 @@ Format your responses using markdown for better readability.${context}`;
         'Authorization': `Bearer ${process.env.AI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: process.env.AI_MODEL || 'llama-3.1-70b-versatile',
+        model: process.env.AI_MODEL || 'llama-3.3-70b-versatile',
         messages: [
           {
             role: 'system',

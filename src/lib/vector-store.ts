@@ -58,7 +58,8 @@ export class VectorStore {
     console.log(`Generating embeddings for ${chunks.length} chunks via server...`);
     
     const generatedEmbeddings: number[][] = [];
-    const BATCH_SIZE = 50; // Process 50 chunks at a time on server
+    // REDUCED batch size from 50 to 10 to prevent overwhelming the browser
+    const BATCH_SIZE = 10;
     
     for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
       const batchChunks = chunks.slice(i, Math.min(i + BATCH_SIZE, chunks.length));
@@ -67,12 +68,18 @@ export class VectorStore {
       console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(chunks.length / BATCH_SIZE)}...`);
       
       try {
-        // Send batch to server
+        // Send batch to server with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout per batch
+        
         const response = await fetch(this.apiEndpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ texts: batchTexts })
+          body: JSON.stringify({ texts: batchTexts }),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
@@ -92,11 +99,15 @@ export class VectorStore {
           }
         });
         
-        // Small delay between batches
+        // INCREASED delay between batches from 500ms to 1000ms
+        // This gives browser time to process and prevents freezing
         if (i + BATCH_SIZE < chunks.length) {
-          await new Promise(resolve => setTimeout(resolve, 500));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       } catch (error) {
+        if (error instanceof Error && error.name === 'AbortError') {
+          throw new Error('Embedding generation timeout - server may be overloaded. Try uploading a smaller document.');
+        }
         console.error(`Error processing batch:`, error);
         throw error;
       }

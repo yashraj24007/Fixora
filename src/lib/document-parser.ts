@@ -141,24 +141,34 @@ function createChunks(
   documentName: string,
   totalPages: number
 ): DocumentChunk[] {
-  // REDUCED chunk size from 500 to 300 to process smaller pieces
+  // REDUCED chunk size from 500 to 250 to process smaller pieces
   // This helps prevent memory issues and makes processing more manageable
-  const CHUNK_SIZE = 300;
-  const OVERLAP = 50;
+  // Smaller chunks = more chunks but each is processed faster
+  const CHUNK_SIZE = 250;
+  const OVERLAP = 40; // Reduced overlap as well
   const chunks: DocumentChunk[] = [];
+  
+  // LIMIT: Maximum 500 chunks to prevent overwhelming the system
+  const MAX_CHUNKS = 500;
   
   let chunkIndex = 0;
   let startIdx = 0;
   
-  while (startIdx < fullText.length) {
+  while (startIdx < fullText.length && chunkIndex < MAX_CHUNKS) {
     const endIdx = Math.min(startIdx + CHUNK_SIZE, fullText.length);
     const chunkText = fullText.substring(startIdx, endIdx);
+    
+    // Skip very short chunks (less than 50 characters)
+    if (chunkText.trim().length < 50 && startIdx + CHUNK_SIZE < fullText.length) {
+      startIdx = endIdx - OVERLAP;
+      continue;
+    }
     
     // Estimate page number based on position in document
     const pageNumber = Math.ceil((startIdx / fullText.length) * totalPages) || 1;
     
     chunks.push({
-      text: chunkText,
+      text: chunkText.trim(),
       pageNumber,
       chunkIndex,
       documentId,
@@ -167,6 +177,11 @@ function createChunks(
     
     chunkIndex++;
     startIdx = endIdx - OVERLAP;
+  }
+  
+  // Warn if we hit the max limit
+  if (chunkIndex >= MAX_CHUNKS && startIdx < fullText.length) {
+    console.warn(`⚠️ Document truncated: Only first ${MAX_CHUNKS} chunks processed. Consider uploading a smaller document.`);
   }
   
   return chunks;

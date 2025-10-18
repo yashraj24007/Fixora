@@ -391,25 +391,32 @@ const Assistant = () => {
 
         toast({
           title: "🧠 Generating embeddings",
-          description: `Processing ${parsedDoc.chunks.length} chunks from ${docName}... First upload may take longer while downloading the AI model (~120MB).`,
-          duration: 5000,
+          description: `Processing ${parsedDoc.chunks.length} chunks from ${docName}... This may take several minutes for large documents. Please don't close this page.`,
+          duration: 8000,
         });
 
         // Step 2: Generate embeddings and add to vector store with timeout
-        const result = await Promise.race([
-          vectorStore.addChunks(parsedDoc.chunks, (current, total) => {
-            const progress = 40 + Math.floor((current / total) * 50);
-            setDocuments(prev => 
-              prev.map(d => d.name === docName 
-                ? { ...d, processingProgress: progress } 
-                : d
-              )
-            );
-          }),
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Embedding generation timeout (10 minutes) - try splitting the document into smaller parts')), 600000)
-          )
-        ]);
+        // IMPORTANT: Wrap in try-catch to prevent crashes
+        let result;
+        try {
+          result = await Promise.race([
+            vectorStore.addChunks(parsedDoc.chunks, (current, total) => {
+              const progress = 40 + Math.floor((current / total) * 50);
+              setDocuments(prev => 
+                prev.map(d => d.name === docName 
+                  ? { ...d, processingProgress: progress } 
+                  : d
+                )
+              );
+            }),
+            new Promise<never>((_, reject) => 
+              setTimeout(() => reject(new Error('Embedding generation timeout (15 minutes) - document too large. Try splitting it into smaller files.')), 900000) // Increased to 15 minutes
+            )
+          ]);
+        } catch (embeddingError) {
+          console.error('Embedding generation error:', embeddingError);
+          throw new Error(embeddingError instanceof Error ? embeddingError.message : 'Failed to generate embeddings - server may be overloaded');
+        }
 
         // Step 3: Save to IndexedDB for persistence
         try {

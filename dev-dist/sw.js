@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-47da91e0'], (function (workbox) { 'use strict';
+define(['./workbox-e755d862'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -82,28 +82,32 @@ define(['./workbox-47da91e0'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.drfh07c4t84"
+    "revision": "0.458vtrma0k"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
-  workbox.registerRoute(/^https:\/\/fonts\.googleapis\.com\/.*/i, new workbox.CacheFirst({
-    "cacheName": "google-fonts-cache",
+  workbox.registerRoute(/^https:\/\/api\.groq\.com\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "groq-api-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 10,
-      maxAgeSeconds: 31536000
+      maxAgeSeconds: 3600
     }), new workbox.CacheableResponsePlugin({
       statuses: [0, 200]
     })]
   }), 'GET');
-  workbox.registerRoute(/^https:\/\/api\.groq\.com\/.*/i, new workbox.NetworkFirst({
-    "cacheName": "groq-api-cache",
-    "networkTimeoutSeconds": 10,
+  workbox.registerRoute(/^https:\/\/.*\.supabase\.co\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "supabase-cache",
     plugins: [new workbox.ExpirationPlugin({
       maxEntries: 50,
       maxAgeSeconds: 86400
     })]
+  }), 'GET');
+  workbox.registerRoute(/\/api\/(local-model|chat)\/.*/i, new workbox.NetworkFirst({
+    "cacheName": "api-cache",
+    "networkTimeoutSeconds": 10,
+    plugins: []
   }), 'GET');
 
 }));
