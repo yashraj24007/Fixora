@@ -69,7 +69,7 @@ export const translations = {
     exportChat: "Export Chat",
     exportChatDesc: "Download conversation",
     helpCenter: "Help Center",
-    helpCenterDesc: "Get support & guides",
+    helpCenterDescShort: "Get support & guides",
     contactUs: "Contact Us",
     contactUsDesc: "Reach our support team",
     
@@ -292,7 +292,7 @@ export const translations = {
     exportChat: "चैट निर्यात करें",
     exportChatDesc: "बातचीत डाउनलोड करें",
     helpCenter: "सहायता केंद्र",
-    helpCenterDesc: "समर्थन और गाइड प्राप्त करें",
+    helpCenterDescShort: "समर्थन और गाइड प्राप्त करें",
     contactUs: "संपर्क करें",
     contactUsDesc: "हमारी सहायता टीम से संपर्क करें",
     
