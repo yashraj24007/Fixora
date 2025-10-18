@@ -1,9 +1,4 @@
-import { pipeline, env } from '@xenova/transformers';
 import { DocumentChunk } from './document-parser';
-
-// Configure transformers to use local models
-env.allowLocalModels = false;
-env.allowRemoteModels = true;
 
 // Cosine similarity function
 export function cosineSimilarity(a: number[], b: number[]): number {
@@ -24,132 +19,90 @@ export interface SearchResult {
 
 /**
  * Vector store for managing document embeddings and similarity search
+ * Now uses server-side API instead of browser-based transformers.js
  */
 export class VectorStore {
   private embeddings: ChunkWithEmbedding[] = [];
-  private embeddingPipeline: any = null;
-  private isInitialized = false;
+  private apiEndpoint = import.meta.env.VITE_BACKEND_URL?.replace('/chat', '/embeddings') || 'http://localhost:3001/api/embeddings';
 
   /**
-   * Initialize the embedding model with retry logic
+   * Generate embedding via server API
    */
-  async initialize(): Promise<void> {
-    if (this.isInitialized) return;
+  async generateEmbedding(text: string): Promise<number[]> {
+    try {
+      const response = await fetch(this.apiEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ texts: [text] })
+      });
 
-    const maxRetries = 3;
-    let lastError: Error | null = null;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        console.log(`Loading embedding model... (attempt ${attempt}/${maxRetries})`);
-        
-        // Add timeout to model loading
-        const modelPromise = pipeline(
-          'feature-extraction',
-          'Xenova/all-MiniLM-L6-v2'
-        );
-        
-        this.embeddingPipeline = await Promise.race([
-          modelPromise,
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Model loading timeout (120s) - check your internet connection')), 120000)
-          )
-        ]);
-        
-        this.isInitialized = true;
-        console.log('✅ Embedding model loaded successfully');
-        return;
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error');
-        console.error(`Attempt ${attempt} failed:`, lastError.message);
-        
-        if (attempt < maxRetries) {
-          console.log(`Retrying in ${attempt * 2} seconds...`);
-          await new Promise(resolve => setTimeout(resolve, attempt * 2000));
-        }
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        throw new Error(`Embedding API error: ${errorData.error || response.statusText}`);
       }
-    }
 
-    throw new Error(`Failed to initialize embedding model after ${maxRetries} attempts: ${lastError?.message}`);
+      const data = await response.json();
+      return data.embeddings[0];
+    } catch (error) {
+      console.error('Error generating embedding:', error);
+      throw new Error(`Failed to generate embedding: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   /**
-   * Generate embedding for a text string with retry logic
-   */
-  async generateEmbedding(text: string, maxRetries: number = 3): Promise<number[]> {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
-
-    let lastError: Error | null = null;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        // Add timeout to embedding generation
-        const embeddingPromise = this.embeddingPipeline(text, {
-          pooling: 'mean',
-          normalize: true,
-        });
-
-        const output = await Promise.race([
-          embeddingPromise,
-          new Promise<never>((_, reject) => 
-            setTimeout(() => reject(new Error('Embedding generation timeout (30s)')), 30000)
-          )
-        ]);
-
-        // Convert tensor to array
-        return Array.from(output.data);
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error('Unknown error');
-        console.error(`Embedding attempt ${attempt} failed:`, lastError.message);
-        
-        if (attempt < maxRetries) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-      }
-    }
-
-    throw new Error(`Failed to generate embedding after ${maxRetries} attempts: ${lastError?.message}`);
-  }
-
-  /**
-   * Add chunks with embeddings to the store
+   * Add chunks with embeddings to the store - SERVER-SIDE BATCH PROCESSING
    */
   async addChunks(chunks: DocumentChunk[], onProgress?: (current: number, total: number) => void): Promise<{
     embeddings: number[][];
   }> {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
-
-    console.log(`Generating embeddings for ${chunks.length} chunks...`);
+    console.log(`Generating embeddings for ${chunks.length} chunks via server...`);
     
     const generatedEmbeddings: number[][] = [];
+    const BATCH_SIZE = 50; // Process 50 chunks at a time on server
     
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
+    for (let i = 0; i < chunks.length; i += BATCH_SIZE) {
+      const batchChunks = chunks.slice(i, Math.min(i + BATCH_SIZE, chunks.length));
+      const batchTexts = batchChunks.map(c => c.text);
+      
+      console.log(`Processing batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(chunks.length / BATCH_SIZE)}...`);
+      
       try {
-        const embedding = await this.generateEmbedding(chunk.text);
-        
-        this.embeddings.push({
-          ...chunk,
-          embedding,
+        // Send batch to server
+        const response = await fetch(this.apiEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ texts: batchTexts })
         });
 
-        generatedEmbeddings.push(embedding);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          throw new Error(`Embedding API error: ${errorData.error || response.statusText}`);
+        }
 
-        if (onProgress) {
-          onProgress(i + 1, chunks.length);
+        const data = await response.json();
+        
+        // Store embeddings
+        data.embeddings.forEach((embedding: number[], idx: number) => {
+          const chunk = batchChunks[idx];
+          this.embeddings.push({ ...chunk, embedding });
+          generatedEmbeddings.push(embedding);
+          
+          if (onProgress) {
+            onProgress(i + idx + 1, chunks.length);
+          }
+        });
+        
+        // Small delay between batches
+        if (i + BATCH_SIZE < chunks.length) {
+          await new Promise(resolve => setTimeout(resolve, 500));
         }
       } catch (error) {
-        console.error(`Error processing chunk ${i}:`, error);
-        // Continue with other chunks even if one fails
+        console.error(`Error processing batch:`, error);
+        throw error;
       }
     }
 
-    console.log(`Successfully added ${this.embeddings.length} chunks to vector store`);
-    
+    console.log(`✅ Generated ${generatedEmbeddings.length} embeddings`);
     return { embeddings: generatedEmbeddings };
   }
 
@@ -174,16 +127,12 @@ export class VectorStore {
    * Search for similar chunks based on a query
    */
   async search(query: string, topK: number = 5, documentIds?: string[]): Promise<SearchResult[]> {
-    if (!this.isInitialized) {
-      await this.initialize();
-    }
-
     if (this.embeddings.length === 0) {
       return [];
     }
 
     try {
-      // Generate embedding for the query
+      // Generate embedding for the query via server
       const queryEmbedding = await this.generateEmbedding(query);
 
       // Filter embeddings by document IDs if provided

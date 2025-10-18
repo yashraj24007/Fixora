@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
+import { AIModeProvider } from "@/components/ai-mode-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "@/components/ScrollToTop";
@@ -72,13 +73,14 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="dark" storageKey="fixora-ui-theme">
       <LanguageProvider defaultLanguage="en" storageKey="fixora-language">
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <ScrollToTop />
-            <ErrorBoundary>
-              <Suspense fallback={<PageLoadingFallback />}>
+        <AIModeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <ScrollToTop />
+              <ErrorBoundary>
+                <Suspense fallback={<PageLoadingFallback />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/demo" element={<Demo />} />
@@ -103,9 +105,10 @@ const App = () => (
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
-            </ErrorBoundary>
-          </BrowserRouter>
-        </TooltipProvider>
+              </ErrorBoundary>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AIModeProvider>
       </LanguageProvider>
     </ThemeProvider>
   </QueryClientProvider>

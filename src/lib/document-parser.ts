@@ -57,15 +57,15 @@ async function extractTextFromPDF(file: File): Promise<{ text: string; pages: nu
   try {
     const arrayBuffer = await file.arrayBuffer();
     
-    // Add timeout wrapper for PDF loading
+    // Add timeout wrapper for PDF loading (extended to 3 minutes for large files)
     const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
     const pdf = await Promise.race([
       loadingTask.promise,
       new Promise<never>((_, reject) => 
         setTimeout(() => {
           loadingTask.destroy();
-          reject(new Error('PDF loading timeout (60s) - file may be too large or corrupted'));
-        }, 60000)
+          reject(new Error('PDF loading timeout (3 minutes) - file may be too large or corrupted'));
+        }, 180000) // 3 minutes
       )
     ]);
     
@@ -88,6 +88,15 @@ async function extractTextFromPDF(file: File): Promise<{ text: string; pages: nu
           .join(' ');
         
         fullText += pageText + '\n\n';
+
+        // CRITICAL: Yield to main thread every page with a longer delay
+        // This prevents "Page Unresponsive" and "Out of Memory" errors
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
+        // Force garbage collection opportunity every 10 pages
+        if (pageNum % 10 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
       } catch (pageError) {
         console.warn(`Warning: Could not extract page ${pageNum}:`, pageError);
         fullText += `[Page ${pageNum} extraction failed]\n\n`;
@@ -132,8 +141,10 @@ function createChunks(
   documentName: string,
   totalPages: number
 ): DocumentChunk[] {
-  const CHUNK_SIZE = 500;
-  const OVERLAP = 100;
+  // REDUCED chunk size from 500 to 300 to process smaller pieces
+  // This helps prevent memory issues and makes processing more manageable
+  const CHUNK_SIZE = 300;
+  const OVERLAP = 50;
   const chunks: DocumentChunk[] = [];
   
   let chunkIndex = 0;

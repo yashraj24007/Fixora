@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Languages, ChevronDown, Menu, X } from "lucide-react";
+import { User, Languages, ChevronDown, Menu, Brain, Cpu } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLanguage } from "@/components/language-provider";
+import { useAIMode } from "@/components/ai-mode-provider";
 import { translations, languageNames, languageEmojis } from "@/lib/translations";
 import FixoraLogo from "@/components/FixoraLogo";
 import {
@@ -25,6 +26,7 @@ const Navbar = () => {
   const location = useLocation();
   const { theme, setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
+  const { aiMode, setAIMode } = useAIMode();
   const t = translations[language];
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -86,24 +88,61 @@ const Navbar = () => {
                   : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
               }`} />
             </div>
-            <div className="relative group">
-              <button
-                onClick={() => navigate('/demo')}
-                className={`relative px-5 py-2 rounded-t-lg font-medium transition-all duration-300 ease-out ${
-                  isActive('/demo') 
-                    ? 'text-primary font-bold' 
-                    : 'text-muted-foreground hover:text-primary group-hover:transform group-hover:-translate-y-0.5'
-                }`}
-              >
-                {t.aiAssistant}
-              </button>
-              {/* Blue underline with smooth animation */}
-              <div className={`absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 transition-all duration-300 ease-out origin-left ${
-                isActive('/demo') 
-                  ? 'w-full opacity-100' 
-                  : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
-              }`} />
-            </div>
+            
+            {/* AI Assistant Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="relative px-5 py-2 rounded-t-lg font-medium transition-all duration-300 ease-out text-muted-foreground hover:text-primary group-hover:transform group-hover:-translate-y-0.5 flex items-center gap-1"
+                >
+                  {t.aiAssistant}
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64 bg-card/95 backdrop-blur-md border-border shadow-xl">
+                <DropdownMenuItem 
+                  onClick={() => {
+                    setAIMode('api');
+                    navigate('/demo');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`gap-3 cursor-pointer p-3 ${
+                    aiMode === 'api' 
+                      ? "bg-primary/10 text-primary" 
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Cpu className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">Use API</span>
+                    <span className="text-xs text-muted-foreground">Groq AI (Cloud-based)</span>
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => {
+                    setAIMode('local-model');
+                    navigate('/demo');
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`gap-3 cursor-pointer p-3 ${
+                    aiMode === 'local-model' 
+                      ? "bg-blue-500/10 text-blue-600" 
+                      : "hover:bg-accent"
+                  }`}
+                >
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <Brain className="h-4 w-4 text-blue-500" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold">Use Local Model</span>
+                    <span className="text-xs text-muted-foreground">Trained ML Model</span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <div className="relative group">
               <button
                 onClick={() => navigate('/about')}
@@ -238,13 +277,6 @@ const Navbar = () => {
                       {t.home}
                     </Button>
                     <Button
-                      variant={isActive('/demo') ? "default" : "ghost"}
-                      className="w-full justify-start"
-                      onClick={() => handleNavigation('/demo')}
-                    >
-                      {t.aiAssistant}
-                    </Button>
-                    <Button
                       variant={isActive('/about') ? "default" : "ghost"}
                       className="w-full justify-start"
                       onClick={() => handleNavigation('/about')}
@@ -257,6 +289,37 @@ const Navbar = () => {
                   <div className="border-t pt-6">
                     <h3 className="font-semibold mb-4">Settings</h3>
                     
+                    {/* AI Assistant Selection */}
+                    <div className="space-y-2 mb-4">
+                      <p className="text-sm text-muted-foreground">{t.aiAssistant}</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant={aiMode === 'api' ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setAIMode('api');
+                            handleNavigation('/demo');
+                          }}
+                          className="w-full flex items-center gap-2"
+                        >
+                          <Cpu className="h-3 w-3" />
+                          API
+                        </Button>
+                        <Button
+                          variant={aiMode === 'local-model' ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => {
+                            setAIMode('local-model');
+                            handleNavigation('/demo');
+                          }}
+                          className="w-full flex items-center gap-2"
+                        >
+                          <Brain className="h-3 w-3" />
+                          Local
+                        </Button>
+                      </div>
+                    </div>
+
                     {/* Language Selection */}
                     <div className="space-y-2 mb-4">
                       <p className="text-sm text-muted-foreground">Language</p>
