@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: fixora-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install && pip install pandas && npm run build:server
+    startCommand: npm run start:server
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://fixora-seven.vercel.app
+    healthCheckPath: /

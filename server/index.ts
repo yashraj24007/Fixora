@@ -16,6 +16,7 @@ app.use(cors({
   origin: [
     'http://localhost:8080',
     'http://localhost:8081',
+    'https://fixora-seven.vercel.app',
     process.env.FRONTEND_URL || 'http://localhost:8080'
   ],
   credentials: true
