@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Send, FileText, CheckCircle, Upload, X, Loader2, FileSpreadsheet, MessageSquarePlus, Download, HelpCircle, Video, Database, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
+import { Send, FileText, CheckCircle, Upload, X, Loader2, FileSpreadsheet, MessageSquarePlus, Download, HelpCircle, Video, Database, Mic, MicOff, Volume2, VolumeX, Brain, CloudCog } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { callAI } from "@/lib/api-config";
@@ -12,6 +12,7 @@ import { extractTextFromDocument, DocumentChunk, validateFileSize, isSupportedFi
 import { vectorStore, SearchResult } from "@/lib/vector-store";
 import { getCurrentUser } from "@/lib/supabase";
 import { saveChatMessage, loadChatHistory, clearChatHistory } from "@/lib/chat-storage";
+import { useAIMode } from "@/components/ai-mode-provider";
 import { 
   saveDocument, 
   saveChunks, 
@@ -50,6 +51,7 @@ const sampleDocuments: Document[] = [
 ];
 
 const Assistant = () => {
+  const { aiMode, setAIMode } = useAIMode();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -1066,7 +1068,22 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                   </Button>
                 )}
               </div>
-              <p className="text-xl text-muted-foreground">Ask questions about repair procedures, error codes, or specifications</p>
+              <p className="text-xl text-muted-foreground mb-2">Ask questions about repair procedures, error codes, or specifications</p>
+              
+              {/* Mode Indicator */}
+              <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-muted/50 rounded-lg">
+                {aiMode === 'api' ? (
+                  <>
+                    <CloudCog className="w-4 h-4 text-primary" />
+                    <span className="text-sm"><strong>RAG Mode:</strong> Using document retrieval</span>
+                  </>
+                ) : (
+                  <>
+                    <Brain className="w-4 h-4 text-blue-500" />
+                    <span className="text-sm"><strong>Local Model:</strong> Using pre-trained model</span>
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="max-w-7xl mx-auto">
@@ -1126,11 +1143,19 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <span className="text-2xl">🤖</span>
+                    <span className="text-2xl">{aiMode === 'api' ? '🤖' : '🧠'}</span>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold">Welcome to Fixora RAG-Based AI Assistant!</h3>
-                    <p className="text-sm text-muted-foreground">Upload your vehicle manuals and get instant, accurate answers</p>
+                    <h3 className="text-xl font-bold">
+                      {aiMode === 'api' 
+                        ? 'Welcome to Fixora RAG-Based AI Assistant!' 
+                        : 'Welcome to Fixora Local AI Model!'}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {aiMode === 'api'
+                        ? 'Upload your vehicle manuals and get instant, accurate answers'
+                        : 'Ask questions directly - our pre-trained model is ready to help'}
+                    </p>
                   </div>
                 </div>
                 <Button 
@@ -1143,77 +1168,126 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                <div className="bg-card/50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">🎯</span>
-                    <h4 className="font-semibold">What is RAG?</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    RAG (Retrieval-Augmented Generation) means I answer questions ONLY from YOUR uploaded documents. No guessing!
-                  </p>
-                </div>
+              {aiMode === 'api' ? (
+                // RAG Mode Instructions
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">🎯</span>
+                        <h4 className="font-semibold">What is RAG?</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        RAG (Retrieval-Augmented Generation) means I answer questions ONLY from YOUR uploaded documents. No guessing!
+                      </p>
+                    </div>
 
-                <div className="bg-card/50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">📚</span>
-                    <h4 className="font-semibold">How it works</h4>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div>1. Upload Documents</div>
-                    <div>2. Automatic Processing</div>
-                    <div>3. Ask Questions</div>
-                  </div>
-                </div>
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">📚</span>
+                        <h4 className="font-semibold">How it works</h4>
+                      </div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div>1. Upload Documents</div>
+                        <div>2. Automatic Processing</div>
+                        <div>3. Ask Questions</div>
+                      </div>
+                    </div>
 
-                <div className="bg-card/50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">✅</span>
-                    <h4 className="font-semibold">What I CAN do</h4>
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div>• Answer from YOUR docs</div>
-                    <div>• Find specific procedures</div>
-                    <div>• Cite exact sources</div>
-                  </div>
-                </div>
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">✅</span>
+                        <h4 className="font-semibold">What I CAN do</h4>
+                      </div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div>• Answer from YOUR docs</div>
+                        <div>• Find specific procedures</div>
+                        <div>• Cite exact sources</div>
+                      </div>
+                    </div>
 
-                <div className="bg-card/50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-lg">❌</span>
-                    <h4 className="font-semibold">What I CANNOT do</h4>
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">❌</span>
+                        <h4 className="font-semibold">What I CANNOT do</h4>
+                      </div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div>• General knowledge</div>
+                        <div>• External information</div>
+                        <div>• Opinions/assumptions</div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <div>• General knowledge</div>
-                    <div>• External information</div>
-                    <div>• Opinions/assumptions</div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
-                <p className="text-sm font-medium text-primary">
-                  🚀 <strong>Get Started:</strong> Upload your service manuals using the Knowledge Base section on the left, then ask your questions!
-                </p>
-              </div>
+                  <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
+                    <p className="text-sm font-medium text-primary">
+                      🚀 <strong>Get Started:</strong> Upload your service manuals using the Knowledge Base section on the left, then ask your questions!
+                    </p>
+                  </div>
+                </>
+              ) : (
+                // Local Model Instructions
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">🧠</span>
+                        <h4 className="font-semibold">Pre-trained Model</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Our model is trained on thousands of vehicle repair manuals and technical documentation.
+                      </p>
+                    </div>
+
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">⚡</span>
+                        <h4 className="font-semibold">No Upload Needed</h4>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Just ask your question directly - the model already has extensive automotive knowledge.
+                      </p>
+                    </div>
+
+                    <div className="bg-card/50 p-4 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-lg">✅</span>
+                        <h4 className="font-semibold">What I CAN do</h4>
+                      </div>
+                      <div className="text-sm text-muted-foreground space-y-1">
+                        <div>• Answer repair questions</div>
+                        <div>• Explain error codes</div>
+                        <div>• General procedures</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 text-center">
+                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                      🚀 <strong>Get Started:</strong> Type your question below and press Send. No document upload required!
+                    </p>
+                  </div>
+                </>
+              )}
             </Card>
           </div>
         )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[500px]">
-            {/* Left Sidebar - Documents */}
-            <Card className="lg:col-span-1 bg-card border-border p-4 sm:p-6 max-h-[400px] lg:max-h-none overflow-y-auto">
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-foreground">Knowledge Base</h3>
-                  {isRestoringDocuments && (
-                    <Badge variant="outline" className="text-xs">
-                      <Database className="w-3 h-3 mr-1 animate-pulse" />
-                      Restoring...
-                    </Badge>
-                  )}
-                </div>
+          <div className={`grid grid-cols-1 ${aiMode === 'api' ? 'lg:grid-cols-4' : 'lg:grid-cols-1'} gap-4 sm:gap-6 h-auto lg:h-[500px]`}>
+            {/* Left Sidebar - Documents (Only in RAG Mode) */}
+            {aiMode === 'api' && (
+              <Card className="lg:col-span-1 bg-card border-border p-4 sm:p-6 max-h-[400px] lg:max-h-none overflow-y-auto">
+                <div className="mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-foreground">Knowledge Base</h3>
+                    {isRestoringDocuments && (
+                      <Badge variant="outline" className="text-xs">
+                        <Database className="w-3 h-3 mr-1 animate-pulse" />
+                        Restoring...
+                      </Badge>
+                    )}
+                  </div>
                 
                 {/* Processing Info Banner */}
                 {documents.some(d => d.status !== 'ready') && (
@@ -1392,9 +1466,10 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                 ))}
               </div>
             </Card>
+            )}
 
             {/* Right Chat Interface */}
-            <Card className="lg:col-span-3 bg-card border-border flex flex-col overflow-hidden min-h-[500px] lg:min-h-0">
+            <Card className={`${aiMode === 'api' ? 'lg:col-span-3' : 'lg:col-span-1'} bg-card border-border flex flex-col overflow-hidden min-h-[500px] lg:min-h-0`}>
               {/* Messages */}
               <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
                 {messages.length === 0 ? (
