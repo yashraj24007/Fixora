@@ -7,103 +7,129 @@ interface FixoraLogoProps {
 
 const FixoraLogo: React.FC<FixoraLogoProps> = ({ className = '', size = 48 }) => {
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 100 100"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      {/* Outer gear/circle representing automotive */}
-      <circle
-        cx="50"
-        cy="50"
-        r="45"
-        stroke="currentColor"
-        strokeWidth="3"
+    <div className="relative">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
         fill="none"
-        opacity="0.3"
-      />
-      
-      {/* Gear teeth */}
-      {[0, 45, 90, 135, 180, 225, 270, 315].map((angle) => (
-        <rect
-          key={angle}
-          x="48"
-          y="3"
-          width="4"
-          height="8"
-          fill="currentColor"
-          opacity="0.4"
-          transform={`rotate(${angle} 50 50)`}
+        xmlns="http://www.w3.org/2000/svg"
+        className={className}
+      >
+        <defs>
+          <linearGradient id="hexGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3B82F6" />
+            <stop offset="50%" stopColor="#2563EB" />
+            <stop offset="100%" stopColor="#1D4ED8" />
+          </linearGradient>
+          <linearGradient id="toolGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#F8FAFC" />
+          </linearGradient>
+          <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="2" dy="2" stdDeviation="3" floodOpacity="0.2"/>
+          </filter>
+        </defs>
+
+        {/* Main hexagon */}
+        <path
+          d="M50 5 L82 25 L82 65 L50 85 L18 65 L18 25 Z"
+          fill="url(#hexGradient)"
+          filter="url(#shadow)"
         />
-      ))}
 
-      {/* Wrench - main body */}
-      <path
-        d="M35 65 L35 45 L32 45 L32 35 L38 35 L38 45 L35 45"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-      
-      {/* Wrench - adjustable jaw */}
-      <path
-        d="M32 35 L28 31 L30 29 L34 33"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
+        {/* Inner hexagon for depth */}
+        <path
+          d="M50 12 L75 28 L75 62 L50 78 L25 62 L25 28 Z"
+          fill="none"
+          stroke="white"
+          strokeWidth="1"
+          opacity="0.3"
+        />
 
-      {/* AI Circuit Pattern - right side */}
-      <circle cx="60" cy="35" r="3" fill="currentColor" opacity="0.8" />
-      <circle cx="70" cy="35" r="3" fill="currentColor" opacity="0.8" />
-      <circle cx="65" cy="45" r="3" fill="currentColor" opacity="0.8" />
-      
-      {/* Circuit connections */}
-      <line x1="60" y1="35" x2="70" y2="35" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-      <line x1="63" y1="35" x2="65" y2="42" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
-      <line x1="67" y1="35" x2="65" y2="42" stroke="currentColor" strokeWidth="1.5" opacity="0.6" />
+        {/* Tool symbol - simplified wrench with two prongs */}
+        <g transform="translate(50, 50)">
+          {/* Main vertical body */}
+          <rect
+            x="-3"
+            y="-20"
+            width="6"
+            height="25"
+            fill="url(#toolGradient)"
+            rx="3"
+          />
+          
+          {/* Left prong */}
+          <rect
+            x="-12"
+            y="-20"
+            width="6"
+            height="15"
+            fill="url(#toolGradient)"
+            rx="3"
+          />
+          
+          {/* Right prong */}
+          <rect
+            x="6"
+            y="-20"
+            width="6"
+            height="15"
+            fill="url(#toolGradient)"
+            rx="3"
+          />
+          
+          {/* Bottom handle extension */}
+          <rect
+            x="-2"
+            y="5"
+            width="4"
+            height="12"
+            fill="url(#toolGradient)"
+            rx="2"
+          />
+          
+          {/* Cross connection between the two prongs */}
+          <rect
+            x="-9"
+            y="-8"
+            width="18"
+            height="3"
+            fill="url(#toolGradient)"
+            rx="1.5"
+          />
+          
+          {/* Center detail circle */}
+          <circle
+            cx="0"
+            cy="-2"
+            r="4"
+            fill="none"
+            stroke="url(#toolGradient)"
+            strokeWidth="1.5"
+          />
+          
+          {/* Small accent dots for modern touch */}
+          <circle cx="-6" cy="10" r="1" fill="white" opacity="0.8" />
+          <circle cx="6" cy="10" r="1" fill="white" opacity="0.8" />
+        </g>
 
-      {/* AI Brain symbol */}
-      <path
-        d="M58 55 Q60 52 62 55 Q64 52 66 55 Q68 52 70 55"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.7"
-      />
-      <path
-        d="M58 60 Q60 63 62 60 Q64 63 66 60 Q68 63 70 60"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.7"
-      />
+        {/* Subtle corner accents */}
+        <circle cx="25" cy="25" r="1.5" fill="white" opacity="0.6" />
+        <circle cx="75" cy="25" r="1.5" fill="white" opacity="0.6" />
+        <circle cx="25" cy="75" r="1.5" fill="white" opacity="0.6" />
+        <circle cx="75" cy="75" r="1.5" fill="white" opacity="0.6" />
 
-      {/* Connecting line between wrench and AI elements */}
-      <line 
-        x1="40" 
-        y1="50" 
-        x2="57" 
-        y2="50" 
-        stroke="currentColor" 
-        strokeWidth="1.5" 
-        strokeDasharray="3 2"
-        opacity="0.5"
-      />
-
-      {/* Center glow/sparkle */}
-      <circle cx="50" cy="50" r="4" fill="currentColor" opacity="0.3" />
-      <circle cx="50" cy="50" r="2" fill="currentColor" />
-    </svg>
+        {/* Inner glow effect */}
+        <path
+          d="M50 15 L72 30 L72 60 L50 75 L28 60 L28 30 Z"
+          fill="none"
+          stroke="white"
+          strokeWidth="0.5"
+          opacity="0.4"
+        />
+      </svg>
+    </div>
   );
 };
 

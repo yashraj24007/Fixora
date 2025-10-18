@@ -10,11 +10,11 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Eager load critical pages (Index for initial load performance)
+// Eager load critical pages (Index for initial load performance, Demo for AI Assistant)
 import Index from "./pages/Index";
+import Demo from "./pages/Demo";
 
 // Lazy load all other pages for code splitting
-const Demo = lazy(() => import("./pages/Demo"));
 const FeaturesPage = lazy(() => import("./pages/Features"));
 const HowItWorksPage = lazy(() => import("./pages/HowItWorks"));
 const AboutPage = lazy(() => import("./pages/About"));

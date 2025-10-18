@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { signIn, signInWithGoogle } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const Login = () => {
@@ -76,7 +77,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-16">
+    <>
+      <Navbar />
+      <div className="min-h-screen flex items-center justify-center bg-background px-4 py-16">
       <div className="w-full max-w-md">
         {/* Logo & Title */}
         <div className="text-center mb-6">
@@ -243,7 +246,8 @@ const Login = () => {
         </div>
       </div>
       <Footer />
-    </div>
+      </div>
+    </>
   );
 };
 

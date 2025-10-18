@@ -28,6 +28,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -242,7 +243,9 @@ const Profile = () => {
   }
 
   return (
-    <section className="min-h-screen pt-20 pb-12 bg-background">
+    <>
+      <Navbar />
+      <section className="min-h-screen pt-20 pb-12 bg-background">
       <div className="container mx-auto px-6">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -445,7 +448,8 @@ const Profile = () => {
         </div>
       </div>
       <Footer />
-    </section>
+      </section>
+    </>
   );
 };
 

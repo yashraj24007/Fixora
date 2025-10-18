@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, FileText, CheckCircle, TrendingUp, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 interface Manual {
@@ -155,6 +157,7 @@ const dummyManuals: Manual[] = [
 ];
 
 const TestedManuals = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterManufacturer, setFilterManufacturer] = useState("all");
@@ -201,6 +204,7 @@ const TestedManuals = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Navbar />
       {/* Hero Section */}
       <div className="bg-gradient-to-br from-primary/10 via-background to-blue-50 dark:to-blue-950/20 py-24">
         <div className="container mx-auto px-4 text-center">
@@ -371,7 +375,11 @@ const TestedManuals = () => {
                 Upload your vehicle service manual to our AI assistant and see how it performs. 
                 Join thousands of mechanics and technicians who trust Fixora for accurate, instant answers.
               </p>
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90"
+                onClick={() => navigate('/demo')}
+              >
                 Try AI Assistant Now
               </Button>
             </CardContent>

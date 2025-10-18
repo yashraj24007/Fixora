@@ -155,6 +155,7 @@ export class VectorStore {
 
   /**
    * Load embeddings from pre-generated data (for IndexedDB restore)
+   * This doesn't require the model to be initialized since we're just loading pre-computed embeddings
    */
   async loadEmbeddings(chunks: DocumentChunk[], embeddings: number[][]): Promise<void> {
     console.log(`Loading ${chunks.length} pre-generated embeddings...`);
@@ -166,7 +167,7 @@ export class VectorStore {
       });
     }
 
-    console.log(`✅ Loaded ${this.embeddings.length} embeddings into vector store`);
+    console.log(`✅ Loaded ${this.embeddings.length} embeddings into vector store (model not yet initialized)`);
   }
 
   /**

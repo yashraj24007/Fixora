@@ -1,100 +1,122 @@
-# 🚗 Fixora: AI Vehicle Service Assistant<!-- Banner Image --><!-- Banner Image --><!-- Banner Image -->
-
-
-
-**Created and Developed Exclusively by Yash Raj**<p align="center">
-
-
-
-## 📖 Overview  <img src="banner1.png" alt="Fixora Banner" width="100%"><p align="center">
-
-Fixora is an intelligent AI Vehicle Service Assistant that transforms how automotive technicians and vehicle owners interact with repair manuals. Advanced RAG (Retrieval Augmented Generation) system processes PDFs locally, creates vector embeddings, and provides instant answers with precise citations.
-
+<!-- Banner Image -->
+<p align="center">
+  <img src="banner1.png" alt="Fixora Banner" width="100%">
 </p>
+
+<h1 align="center">🚗 Fixora: AI Vehicle Service Assistant 🤖</h1>
+<p align="center">
+  Revolutionizing automotive repair with AI-powered manual assistance and intelligent diagnostics.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-blue?style=for-the-badge&logo=react" />
+  <img src="https://img.shields.io/badge/Styling-TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css" />
+  <img src="https://img.shields.io/badge/AI-RAG%20System-FF6B6B?style=for-the-badge&logo=openai" />
+</p>
+
+---
+
+## � Overview
+Fixora is an intelligent AI Vehicle Service Assistant that transforms how automotive technicians and vehicle owners interact with repair manuals. Our advanced RAG (Retrieval Augmented Generation) system processes PDFs locally, creates vector embeddings, and provides instant answers with precise citations.
+
+---
+
+## ❌ The Problem
+
+In the automotive repair industry, technicians face:
+- **Information Overload** – Thousands of pages across multiple manuals per vehicle.
+- **Time Wastage** – Searching through physical manuals during critical repairs.
+- **Knowledge Gaps** – Difficulty finding specific diagnostic procedures quickly.
+- **Manual Complexity** – Technical jargon and scattered information.
+
+---
+
+## 💡 Our Solution
+
+Fixora addresses these challenges with:
+- 📄 **Smart PDF Processing** – Upload manuals and get instant searchability.
+- 🧠 **AI-Powered Search** – Ask questions in natural language.
+- 📍 **Exact Citations** – Get answers with precise page references.
+- 🔒 **Privacy-First** – All processing happens in your browser.
+
+---
 
 ## ✨ Key Features
 
-- 🚗 Smart Vehicle Diagnostics - AI-powered troubleshooting  <img src="banner1.png" alt="Fixora Banner" width="100%"><p align="center"><p align="center">
+| Feature | Description |
+|---------|-------------|
+| 🚗 Smart Vehicle Diagnostics | AI-powered troubleshooting for common automotive issues. |
+| 📄 PDF Manual Processing | Upload repair manuals and get instant AI-powered search. |
+| 🔍 Semantic Search | Natural language queries across your uploaded documents. |
+| 📍 Precise Citations | Every answer includes exact page numbers from source documents. |
+| 🛠️ Interactive Troubleshooting | Guided diagnostic flows for engine, electrical, and maintenance issues. |
 
-- 📄 PDF Manual Processing - Upload repair manuals for instant AI search
+---
 
-- 🔍 Semantic Search - Natural language queries across documents<h1 align="center">🚗 Fixora: AI Vehicle Service Assistant 🤖</h1>
+## � Tech Stack
 
-- 📍 Precise Citations - Exact page numbers from source documents
+| Area       | Technology |
+|------------|------------|
+| Frontend | React 18 + TypeScript + Vite |
+| Styling  | Tailwind CSS + Shadcn/ui |
+| AI Engine | Groq API (llama-3.1-70b-versatile) |
+| RAG System | Transformers.js + pdf.js |
+| Storage | IndexedDB (client-side) |
 
-- 🛠️ Interactive Troubleshooting - Guided diagnostic flows<p align="center"></p>
+---
 
+## 🔄 How It Works
 
+1. **Upload Manuals** → Add your vehicle repair PDFs to the system.
+2. **AI Processing** → Documents are chunked and embedded using ML models.
+3. **Ask Questions** → Query in natural language about any repair topic.
+4. **Get Answers** → Receive precise responses with page citations.
+5. **Smart Diagnostics** → Use guided troubleshooting for common issues.
+6. **Stay Updated** → Access video tutorials and latest repair techniques.
 
-## 🛠 Tech Stack  Revolutionizing automotive repair with AI-powered manual assistance and intelligent diagnostics.
+---
 
-- **Frontend**: React 18 + TypeScript + Vite
+## 📈 Expected Outcomes
 
-- **Styling**: Tailwind CSS + Shadcn/ui</p>  <img src="banner1.png" alt="Fixora Banner" width="100%">  <img src="banner1.png" alt="Fixora Banner" width="100%">
+- 📈 **+40% Faster Problem Resolution** through intelligent search.
+- 🎯 **Higher Accuracy** in diagnostics with AI-powered insights.
+- 🛤 **Reduced Training Time** for new automotive technicians.
+- 📚 **Better Decision Making** with comprehensive manual access.
 
-- **AI Engine**: Groq API (llama-3.1-70b-versatile)
+---
 
-- **RAG System**: Transformers.js + pdf.js
+## 🚀 Future Plans
 
-- **Storage**: IndexedDB (client-side)
+- 📱 **Mobile App** for field technicians and mechanics.
+- 👥 **Technician Forums** for knowledge sharing & collaboration.
+- 🎓 **Training Modules** with certification pathways.
+- 💼 **Integration** with Workshop Management Systems.
 
-<p align="center"><h1 align="center">🚗 Fixora: AI Vehicle Service Assistant 🤖</h1>
+---
 
-## 📈 Proven Results
+## 🔧 Quick Start
 
-- 📊 **1000+ Manuals Tested** - Comprehensive validation across major automotive brands  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-blue?style=for-the-badge&logo=react" />
-
-- 🎯 **95% Average Accuracy** - Industry-leading precision in AI responses
-
-- ⚡ **40% Faster Problem Resolution** - Dramatically reduced diagnostic time  <img src="https://img.shields.io/badge/Styling-TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css" /><p align="center"></p></p>
-
-
-
-## 🔧 Quick Start  <img src="https://img.shields.io/badge/AI-RAG%20System-FF6B6B?style=for-the-badge&logo=openai" />
-
-
-
-### Prerequisites</p>  Revolutionizing automotive repair with AI-powered manual assistance and intelligent diagnostics.
-
+### Prerequisites
 - Node.js 18+ and npm
-
 - Groq API key (free at https://console.groq.com/)
 
-
-
-### Installation---</p>
-
+### Installation
 ```bash
-
 # Clone the repository
-
 git clone https://github.com/yashraj24007/Fixora.git
+cd Fixora
 
-cd Fixora## 📖 Overview
-
-
-
-# Install dependenciesFixora is an intelligent AI Vehicle Service Assistant that transforms how automotive technicians and vehicle owners interact with repair manuals. Our advanced RAG (Retrieval Augmented Generation) system processes PDFs locally, creates vector embeddings, and provides instant answers with precise citations.
-
+# Install dependencies
 npm install
 
-<p align="center"><h1 align="center">🚗 Fixora: AI Vehicle Service Assistant 🤖</h1><h1 align="center">🚗 Fixora: AI Vehicle Service Assistant 🤖</h1>
-
 # Create environment file
-
-cp .env.example .env.local---
+cp .env.example .env.local
 
 # Add your Groq API key to .env.local
 
-  <img src="https://img.shields.io/badge/Frontend-React%20%2B%20Vite-blue?style=for-the-badge&logo=react" />
-
 # Start development server
-
-npm run dev## ❌ The Problem
-
+npm run dev
 ```
-
-In the automotive repair industry, technicians face:  <img src="https://img.shields.io/badge/Styling-TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css" /><p align="center"><p align="center">
 
 Visit `http://localhost:5173` to start using Fixora!
 

@@ -13,7 +13,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-24 md:pt-32 lg:pt-36">
+    <section className="min-h-screen flex items-center justify-center relative overflow-hidden pt-20 md:pt-24 lg:pt-28">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <img 
@@ -21,7 +21,6 @@ const Hero = () => {
           alt="Vehicle Service" 
           className="w-full h-full object-cover"
           loading="eager"
-          fetchPriority="high"
         />
         {/* Lighter overlay for better image visibility */}
         <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/75 to-background/85"></div>
@@ -35,27 +34,27 @@ const Hero = () => {
 
       <div className="container mx-auto px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent leading-tight">
+          <h1 className="text-5xl md:text-7xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent leading-tight pb-2">
             {t.heroTitle}
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto font-medium">
+          <p className="text-xl md:text-2xl text-muted-foreground mb-6 leading-relaxed max-w-3xl mx-auto font-medium">
             {t.heroDescription}
           </p>
 
           {/* Key Benefits */}
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <div className="flex items-center gap-2 bg-blue-600/10 dark:bg-blue-600/20 px-4 py-2 rounded-full border border-blue-600/30">
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            <div className="flex items-center gap-2 bg-blue-600/20 backdrop-blur-md border border-blue-600/30 px-4 py-2 rounded-full shadow-lg">
               <span className="text-2xl">⚡</span>
-              <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">Instant Answers</span>
+              <span className="text-sm font-semibold text-blue-100 dark:text-blue-200">Instant Answers</span>
             </div>
-            <div className="flex items-center gap-2 bg-green-600/10 dark:bg-green-600/20 px-4 py-2 rounded-full border border-green-600/30">
+            <div className="flex items-center gap-2 bg-green-600/20 backdrop-blur-md border border-green-600/30 px-4 py-2 rounded-full shadow-lg">
               <span className="text-2xl">🎯</span>
-              <span className="text-sm font-semibold text-green-600 dark:text-green-400">95% Accuracy</span>
+              <span className="text-sm font-semibold text-green-100 dark:text-green-200">95% Accuracy</span>
             </div>
-            <div className="flex items-center gap-2 bg-purple-600/10 dark:bg-purple-600/20 px-4 py-2 rounded-full border border-purple-600/30">
+            <div className="flex items-center gap-2 bg-purple-600/20 backdrop-blur-md border border-purple-600/30 px-4 py-2 rounded-full shadow-lg">
               <span className="text-2xl">📚</span>
-              <span className="text-sm font-semibold text-purple-600 dark:text-purple-400">1000+ Manuals</span>
+              <span className="text-sm font-semibold text-purple-100 dark:text-purple-200">1000+ Manuals</span>
             </div>
           </div>
 
@@ -63,19 +62,31 @@ const Hero = () => {
             <Button
               onClick={handleLaunchDemo}
               size="lg"
-              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 to-blue-500 text-white font-bold text-lg px-10 py-7 shadow-2xl transition-all duration-300 transform hover:scale-110 hover:-translate-y-2 active:scale-95"
+              className="group relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-500 to-purple-600 text-white font-bold text-lg px-10 py-7 rounded-2xl shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 active:scale-95 backdrop-blur-sm border border-white/20"
             >
-              <span className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-400 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></span>
-              <span className="relative z-10">{t.tryAIAssistant}</span>
+              {/* Animated gradient overlay */}
+              <span className="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out rounded-2xl"></span>
+              {/* Shimmer effect */}
+              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out skew-x-12"></span>
+              <span className="relative z-10 flex items-center gap-2">
+                <span>⚡</span>
+                {t.tryAIAssistant}
+              </span>
             </Button>
             <Button
               onClick={() => navigate('/about')}
               size="lg"
               variant="outline"
-              className="group relative overflow-hidden font-bold text-lg px-10 py-7 border-2 border-foreground/20 text-foreground hover:text-foreground hover:border-foreground/40 transition-all duration-300 transform hover:scale-110 hover:-translate-y-2 shadow-lg hover:shadow-2xl hover:shadow-foreground/20 active:scale-95"
+              className="group relative overflow-hidden font-bold text-lg px-10 py-7 rounded-2xl border-2 bg-black/20 backdrop-blur-md border-white/30 text-white hover:text-white hover:border-white/50 transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 shadow-xl hover:shadow-2xl active:scale-95"
             >
-              <span className="absolute inset-0 bg-foreground/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-500 ease-out"></span>
-              <span className="relative z-10">{t.learnMore}</span>
+              {/* Glassmorphism background */}
+              <span className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></span>
+              {/* Border glow effect */}
+              <span className="absolute inset-0 rounded-2xl border-2 border-gradient-to-r from-blue-400/50 via-purple-400/50 to-pink-400/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+              <span className="relative z-10 flex items-center gap-2">
+                <span>📖</span>
+                {t.learnMore}
+              </span>
             </Button>
           </div>
         </div>

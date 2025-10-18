@@ -50,12 +50,7 @@ const sampleDocuments: Document[] = [
 ];
 
 const Assistant = () => {
-  const welcomeMessage: Message = {
-    role: 'assistant',
-    content: '👋 **Welcome to Fixora RAG-Based AI Assistant!**\n\n🎯 **What is RAG?**\nRAG (Retrieval-Augmented Generation) means I answer questions ONLY from YOUR uploaded documents. No guessing, no external knowledge, no assumptions!\n\n📚 **How it works:**\n1. **Upload Documents** - Drag & drop your vehicle manuals, repair guides, or technical documents (PDF, DOCX, DOC, TXT)\n2. **Automatic Processing** - I extract text and create a searchable vector database\n3. **Ask Questions** - I retrieve relevant sections and provide answers with exact page citations\n\n✅ **What I CAN do:**\n- Answer questions based on YOUR uploaded documents\n- Find specific procedures, specs, and codes in your manuals\n- Cite exact pages and sources for verification\n- Search semantically (understand context, not just keywords)\n\n❌ **What I CANNOT do:**\n- Answer general questions without uploaded documents\n- Provide information not in your files\n- Give opinions or assumptions\n- Answer non-vehicle-related questions\n\n**Upload your service manuals to get started!** 🚀',
-  };
-
-  const [messages, setMessages] = useState<Message[]>([welcomeMessage]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [documents, setDocuments] = useState<Document[]>(sampleDocuments);
@@ -63,6 +58,8 @@ const Assistant = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isRestoringDocuments, setIsRestoringDocuments] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [showInstructions, setShowInstructions] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -88,13 +85,13 @@ const Assistant = () => {
             setMessages(storedMessages as Message[]);
           } else {
             console.log('📝 No previous chat history found');
-            // Keep welcome message if no history
-            setMessages([welcomeMessage]);
+            // Start with empty messages for clean interface
+            setMessages([]);
           }
         } else {
           console.log('⚠️ No user logged in - chat history disabled');
-          // Keep welcome message for non-logged-in users
-          setMessages([welcomeMessage]);
+          // Start with empty messages for non-logged-in users
+          setMessages([]);
         }
       } catch (error) {
         console.error('Error initializing session:', error);
@@ -179,6 +176,13 @@ const Assistant = () => {
     restoreDocuments();
   }, []);
 
+  // Set initialization complete when chat history loading finishes (documents can load in background)
+  useEffect(() => {
+    if (!isLoadingHistory) {
+      setIsInitializing(false);
+    }
+  }, [isLoadingHistory]);
+
   // Check for auto-prompt from troubleshooting page
   useEffect(() => {
     const autoPrompt = sessionStorage.getItem('autoPrompt');
@@ -233,11 +237,11 @@ const Assistant = () => {
         return false;
       }
       
-      // Check file size (max 10MB)
-      if (!validateFileSize(file, 10)) {
+      // Check file size (max 100MB)
+      if (!validateFileSize(file, 100)) {
         toast({
           title: "File too large",
-          description: `${file.name} exceeds 10MB limit`,
+          description: `${file.name} exceeds 100MB limit`,
           variant: "destructive",
         });
         return false;
@@ -836,30 +840,71 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
 
   return (
     <section id="assistant" className="pt-20 pb-12 bg-background min-h-screen">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-4">
-          <h2 className="text-4xl md:text-5xl font-bold mb-3">AI Knowledge Assistant</h2>
-          <p className="text-xl text-muted-foreground">Ask questions about repair procedures, error codes, or specifications</p>
-        </div>
-
-        <div className="max-w-7xl mx-auto">
-          {/* User Status Indicator */}
-          {!isLoadingHistory && (
-            <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {currentUser ? (
-                  <>
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                    <span className="text-sm">
-                      Logged in as <strong>{currentUser.email}</strong>
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      • Chat history enabled ✅
-                    </span>
-                  </>
+      {/* Loading State for Initial Component Load */}
+      {isInitializing && (
+        <div className="container mx-auto px-6 flex items-center justify-center min-h-[70vh]">
+          <Card className="p-8 text-center max-w-md">
+            <div className="mb-6">
+              <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+            </div>
+            <h3 className="text-xl font-semibold mb-3">Initializing AI Assistant</h3>
+            <p className="text-muted-foreground mb-4">
+              Loading chat history...
+            </p>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Chat History</span>
+                {!isLoadingHistory ? (
+                  <CheckCircle className="w-4 h-4 text-green-500" />
                 ) : (
-                  <>
-                    <span className="w-4 h-4 text-yellow-500">⚠️</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {/* Main Assistant Interface */}
+      {!isInitializing && (
+        <>
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-4">
+              <div className="flex items-center justify-center gap-4 mb-3">
+                <h2 className="text-4xl md:text-5xl font-bold">AI Knowledge Assistant</h2>
+                {!showInstructions && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowInstructions(true)}
+                    className="flex items-center gap-2"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    Show Guide
+                  </Button>
+                )}
+              </div>
+              <p className="text-xl text-muted-foreground">Ask questions about repair procedures, error codes, or specifications</p>
+            </div>
+
+            <div className="max-w-7xl mx-auto">
+              {/* User Status Indicator */}
+              {!isLoadingHistory && (
+                <div className="mb-4 p-3 bg-muted/50 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {currentUser ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                        <span className="text-sm">
+                          Logged in as <strong>{currentUser.email}</strong>
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          • Chat history enabled ✅
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="w-4 h-4 text-yellow-500">⚠️</span>
                     <span className="text-sm">
                       Not logged in - Chat history will not be saved
                     </span>
@@ -879,6 +924,99 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
             </div>
           )}
         </div>
+
+        {/* Background document restoration notification */}
+        {isRestoringDocuments && (
+          <div className="max-w-7xl mx-auto mb-4">
+            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3 flex items-center gap-2">
+              <Database className="w-4 h-4 text-blue-500 animate-pulse" />
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                Restoring your documents in the background...
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Welcome & Instructions Section */}
+        {showInstructions && (
+          <div className="max-w-7xl mx-auto mb-6">
+            <Card className="p-6 bg-gradient-to-r from-primary/5 via-blue-500/5 to-purple-500/5 border-primary/20">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl">🤖</span>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold">Welcome to Fixora RAG-Based AI Assistant!</h3>
+                    <p className="text-sm text-muted-foreground">Upload your vehicle manuals and get instant, accurate answers</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowInstructions(false)}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <div className="bg-card/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">🎯</span>
+                    <h4 className="font-semibold">What is RAG?</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    RAG (Retrieval-Augmented Generation) means I answer questions ONLY from YOUR uploaded documents. No guessing!
+                  </p>
+                </div>
+
+                <div className="bg-card/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">📚</span>
+                    <h4 className="font-semibold">How it works</h4>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <div>1. Upload Documents</div>
+                    <div>2. Automatic Processing</div>
+                    <div>3. Ask Questions</div>
+                  </div>
+                </div>
+
+                <div className="bg-card/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">✅</span>
+                    <h4 className="font-semibold">What I CAN do</h4>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <div>• Answer from YOUR docs</div>
+                    <div>• Find specific procedures</div>
+                    <div>• Cite exact sources</div>
+                  </div>
+                </div>
+
+                <div className="bg-card/50 p-4 rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">❌</span>
+                    <h4 className="font-semibold">What I CANNOT do</h4>
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <div>• General knowledge</div>
+                    <div>• External information</div>
+                    <div>• Opinions/assumptions</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
+                <p className="text-sm font-medium text-primary">
+                  🚀 <strong>Get Started:</strong> Upload your service manuals using the Knowledge Base section on the left, then ask your questions!
+                </p>
+              </div>
+            </Card>
+          </div>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 sm:gap-6 h-auto lg:h-[500px]">
@@ -1077,7 +1215,25 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
             <Card className="lg:col-span-3 bg-card border-border flex flex-col overflow-hidden min-h-[500px] lg:min-h-0">
               {/* Messages */}
               <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent">
-                {messages.map((message, index) => (
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full min-h-[300px]">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <MessageSquarePlus className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">Ready to Help!</h3>
+                      <p className="text-muted-foreground mb-4 max-w-md">
+                        Upload your vehicle service manuals on the left, then ask me anything about repairs, procedures, or specifications.
+                      </p>
+                      <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
+                        <p className="font-medium mb-1">💡 Example questions:</p>
+                        <p>"How do I replace the timing belt on a 2020 Honda Civic?"</p>
+                        <p>"What are the torque specs for the cylinder head bolts?"</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  messages.map((message, index) => (
                   <div
                     key={index}
                     className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
@@ -1133,7 +1289,8 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                       )}
                     </div>
                   </div>
-                ))}
+                  ))
+                )}
 
                 {/* Loading State */}
                 {isLoading && (
@@ -1265,6 +1422,8 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
           </Card>
         </div>
       </div>
+        </>
+      )}
     </section>
   );
 };
