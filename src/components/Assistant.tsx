@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Send, FileText, CheckCircle, Upload, X, Loader2, FileSpreadsheet, MessageSquarePlus, Download, HelpCircle, Video, Database } from "lucide-react";
+import { Send, FileText, CheckCircle, Upload, X, Loader2, FileSpreadsheet, MessageSquarePlus, Download, HelpCircle, Video, Database, Mic, MicOff, Volume2, VolumeX } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { callAI } from "@/lib/api-config";
@@ -60,9 +60,17 @@ const Assistant = () => {
   const [isRestoringDocuments, setIsRestoringDocuments] = useState(true);
   const [isInitializing, setIsInitializing] = useState(true);
   const [showInstructions, setShowInstructions] = useState(true);
+  
+  // Voice input/output states
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const { toast } = useToast();
 
   // Load user and chat history on component mount
@@ -182,6 +190,75 @@ const Assistant = () => {
       setIsInitializing(false);
     }
   }, [isLoadingHistory]);
+
+  // Initialize Speech Recognition and check browser support
+  useEffect(() => {
+    // Check if browser supports Speech Recognition
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const speechSynthesis = window.speechSynthesis;
+    
+    if (SpeechRecognition && speechSynthesis) {
+      setSpeechSupported(true);
+      
+      // Initialize Speech Recognition
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        console.log('🎤 Voice recognition started');
+        setIsListening(true);
+      };
+      
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        console.log('🎤 Recognized:', transcript);
+        setInput(transcript);
+        
+        toast({
+          title: "🎤 Voice captured",
+          description: "Your question has been transcribed",
+        });
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('🎤 Voice recognition error:', event.error);
+        setIsListening(false);
+        
+        let errorMessage = "Voice recognition failed";
+        if (event.error === 'no-speech') {
+          errorMessage = "No speech detected. Please try again.";
+        } else if (event.error === 'not-allowed') {
+          errorMessage = "Microphone access denied. Please enable it in your browser settings.";
+        }
+        
+        toast({
+          title: "Voice input error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      };
+      
+      recognition.onend = () => {
+        console.log('🎤 Voice recognition ended');
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+    } else {
+      setSpeechSupported(false);
+      console.log('⚠️ Speech recognition not supported in this browser');
+    }
+    
+    // Cleanup
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
+      }
+      stopSpeaking();
+    };
+  }, []);
 
   // Check for auto-prompt from troubleshooting page
   useEffect(() => {
@@ -466,6 +543,104 @@ const Assistant = () => {
     return selectedDocs;
   };
 
+  // Voice Input: Start listening
+  const startListening = () => {
+    if (!speechSupported) {
+      toast({
+        title: "Not supported",
+        description: "Voice input is not supported in your browser. Try Chrome, Edge, or Safari.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
+    try {
+      recognitionRef.current?.start();
+      toast({
+        title: "🎤 Listening...",
+        description: "Speak your question now",
+      });
+    } catch (error) {
+      console.error('Error starting recognition:', error);
+      toast({
+        title: "Failed to start listening",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Voice Output: Speak text
+  const speakText = (text: string) => {
+    if (!speechSupported) {
+      return;
+    }
+
+    // Stop any ongoing speech
+    stopSpeaking();
+
+    // Clean text for speech (remove markdown, emojis, special characters)
+    const cleanText = text
+      .replace(/\*\*/g, '') // Remove bold markers
+      .replace(/\*/g, '') // Remove italic markers
+      .replace(/#{1,6}\s/g, '') // Remove headers
+      .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1') // Replace links with text
+      .replace(/`([^`]+)`/g, '$1') // Remove code markers
+      .replace(/📄|🔧|✅|❌|🎯|💡|🚀|⚡|📊|🔍|📚|🎥|📋|📺|🎤|🔊/g, '') // Remove emojis
+      .replace(/\n{3,}/g, '\n\n') // Reduce multiple newlines
+      .trim();
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1.0;
+    utterance.volume = 1.0;
+    utterance.lang = 'en-US';
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      console.log('🔊 Started speaking');
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      synthesisRef.current = null;
+      console.log('🔊 Finished speaking');
+    };
+
+    utterance.onerror = (event) => {
+      console.error('🔊 Speech synthesis error:', event);
+      setIsSpeaking(false);
+      synthesisRef.current = null;
+    };
+
+    synthesisRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  // Stop speaking
+  const stopSpeaking = () => {
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      synthesisRef.current = null;
+      console.log('🔊 Speech stopped');
+    }
+  };
+
+  // Toggle speaking
+  const toggleSpeaking = (text: string) => {
+    if (isSpeaking) {
+      stopSpeaking();
+    } else {
+      speakText(text);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
@@ -581,6 +756,13 @@ Remember: You are a DOCUMENT-BASED assistant. Your knowledge is LIMITED to what'
       };
       
       setMessages(prev => [...prev, aiMessage]);
+
+      // Auto-speak the response if speech is supported
+      if (speechSupported && result.answer) {
+        setTimeout(() => {
+          speakText(result.answer);
+        }, 500); // Small delay to ensure message is rendered
+      }
       
       // Save messages to database if user is logged in
       if (currentUser) {
@@ -1245,6 +1427,31 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                           : 'bg-muted text-foreground'
                       }`}
                     >
+                      {/* Voice Output Button for Assistant Messages */}
+                      {message.role === 'assistant' && speechSupported && (
+                        <div className="flex justify-end mb-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleSpeaking(message.content)}
+                            className="h-7 px-2 text-xs hover:bg-primary/10"
+                            title={isSpeaking ? "Stop speaking" : "Read aloud"}
+                          >
+                            {isSpeaking ? (
+                              <>
+                                <VolumeX className="w-4 h-4 mr-1" />
+                                Stop
+                              </>
+                            ) : (
+                              <>
+                                <Volume2 className="w-4 h-4 mr-1" />
+                                Listen
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      )}
+                      
                       <div className="prose prose-invert max-w-none">
                         {message.content.split('\n').map((line, i) => {
                           // Handle bold text
@@ -1328,6 +1535,24 @@ Focus on practical, hands-on repair and diagnostic videos that directly relate t
                     placeholder="Ask about repair..."
                     className="flex-1 bg-muted border-border focus:border-primary text-sm sm:text-base h-10 sm:h-11"
                   />
+                  
+                  {/* Voice Input Button */}
+                  {speechSupported && (
+                    <Button
+                      onClick={startListening}
+                      disabled={isLoading}
+                      variant="outline"
+                      className={`border-primary/50 hover:bg-primary/10 ${isListening ? 'bg-red-500/20 border-red-500' : ''}`}
+                      title={isListening ? "Listening... Click to stop" : "Voice input"}
+                    >
+                      {isListening ? (
+                        <MicOff className="w-5 h-5 text-red-500 animate-pulse" />
+                      ) : (
+                        <Mic className="w-5 h-5" />
+                      )}
+                    </Button>
+                  )}
+                  
                   <Button
                     onClick={handleGenerateSummary}
                     disabled={isLoading || messages.length <= 1}

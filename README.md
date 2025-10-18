@@ -50,6 +50,7 @@ Fixora addresses these challenges with:
 | 🔍 Semantic Search | Natural language queries across your uploaded documents. |
 | 📍 Precise Citations | Every answer includes exact page numbers from source documents. |
 | 🛠️ Interactive Troubleshooting | Guided diagnostic flows for engine, electrical, and maintenance issues. |
+| 🎤 Voice Input/Output | Ask questions using your voice and hear AI responses read aloud. |
 
 ---
 
