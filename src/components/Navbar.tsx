@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
-import { User, Languages, ChevronDown, Menu, Brain, Cpu } from "lucide-react";
+import { User, Languages, ChevronDown, Menu, Brain, Cpu, AlertCircle } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useLanguage } from "@/components/language-provider";
 import { useAIMode } from "@/components/ai-mode-provider";
@@ -230,6 +230,18 @@ const Navbar = () => {
               )}
             </Button>
 
+            {/* SOS Emergency Button */}
+            <Button
+              onClick={() => navigate('/sos-emergency')}
+              variant="destructive"
+              size="sm"
+              className="group gap-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 animate-pulse hover:animate-none"
+              title="SOS Emergency - Find nearby service centers"
+            >
+              <AlertCircle className="h-4 w-4 group-hover:rotate-12 transition-transform" />
+              <span className="text-sm font-bold hidden lg:inline">SOS</span>
+            </Button>
+
             {/* Login Button */}
             <Button
               onClick={() => navigate('/login')}
@@ -243,6 +255,17 @@ const Navbar = () => {
 
           {/* Mobile Menu Button */}
           <div className="flex md:hidden items-center gap-2">
+            {/* Mobile SOS Button */}
+            <Button
+              onClick={() => navigate('/sos-emergency')}
+              size="icon"
+              variant="destructive"
+              className="h-9 w-9 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 animate-pulse hover:animate-none"
+              title="SOS Emergency"
+            >
+              <AlertCircle className="h-4 w-4" />
+            </Button>
+            
             <Button
               onClick={() => navigate('/login')}
               size="icon"
@@ -269,6 +292,16 @@ const Navbar = () => {
                 <div className="flex flex-col gap-6 mt-8">
                   {/* Mobile Navigation Links */}
                   <div className="flex flex-col gap-2">
+                    {/* SOS Emergency - Prominent */}
+                    <Button
+                      variant="destructive"
+                      className="w-full justify-start gap-3 h-12 text-base font-bold bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 animate-pulse hover:animate-none"
+                      onClick={() => handleNavigation('/sos-emergency')}
+                    >
+                      <AlertCircle className="h-5 w-5" />
+                      SOS Emergency
+                    </Button>
+                    
                     <Button
                       variant={isActive('/') ? "default" : "ghost"}
                       className="w-full justify-start"

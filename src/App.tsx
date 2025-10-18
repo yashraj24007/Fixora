@@ -33,6 +33,7 @@ const ContactUs = lazy(() => import("./pages/ContactUs"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const VideoTutorials = lazy(() => import("./pages/VideoTutorials"));
 const TestedManuals = lazy(() => import("./pages/TestedManuals"));
+const SOSEmergencyPage = lazy(() => import("./pages/SOSEmergencyPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 // Loading fallback component
@@ -101,6 +102,7 @@ const App = () => (
                   <Route path="/community-chat" element={<CommunityChat />} />
                   <Route path="/contact-us" element={<ContactUs />} />
                   <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/sos-emergency" element={<SOSEmergencyPage />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
