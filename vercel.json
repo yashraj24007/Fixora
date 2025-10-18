@@ -19,14 +19,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "VITE_SUPABASE_URL": "@vite_supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@vite_supabase_anon_key",
-    "VITE_AI_API_KEY": "@vite_ai_api_key",
-    "VITE_AI_MODEL": "@vite_ai_model",
-    "VITE_AI_API_ENDPOINT": "@vite_ai_api_endpoint",
-    "VITE_BACKEND_URL": "@vite_backend_url",
-    "HUGGINGFACE_API_KEY": "@huggingface_api_key"
-  }
+  ]
 }
