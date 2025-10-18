@@ -1,0 +1,18 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <circle cx="24" cy="24" r="24" fill="url(#gradient1)"/>
+  
+  <!-- Letter F Design -->
+  <path d="M16 12H32V16H20V22H30V26H20V36H16V12Z" fill="white"/>
+  
+  <!-- Decorative Element - Wrench Icon -->
+  <path d="M33 28L31 30L30 29L28 31C27.5 31.5 27.5 32.2 28 32.7L29.3 34C29.8 34.5 30.5 34.5 31 34L33 32L32 31L34 29L33 28Z" fill="white" opacity="0.9"/>
+  
+  <defs>
+    <linearGradient id="gradient1" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </linearGradient>
+  </defs>
+</svg>
