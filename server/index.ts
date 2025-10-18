@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { handleChatRequest } from './api/chat';
 import { handleEmbeddingRequest } from './api/embeddings';
 import { handleModelInference } from './api/model-inference';
+import { handleLocalModelInference } from './api/local-model';
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ const rateLimitMiddleware = (req: express.Request, res: express.Response, next: 
 app.post('/api/chat', rateLimitMiddleware, handleChatRequest);
 app.post('/api/embeddings', rateLimitMiddleware, handleEmbeddingRequest);
 app.post('/api/model-inference', rateLimitMiddleware, handleModelInference);
+app.post('/api/local-model', rateLimitMiddleware, handleLocalModelInference);
 
 // Health check
 app.get('/health', (req, res) => {

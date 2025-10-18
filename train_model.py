@@ -25,8 +25,8 @@ print(df.head())
 # Data preprocessing
 print("\n🧹 Preprocessing data...")
 
-# 1. Clean column names (remove spaces)
-df.columns = df.columns.str.strip()
+# 1. Clean column names (remove spaces and standardize)
+df.columns = df.columns.str.strip().str.upper()
 
 # 2. Handle missing values
 print(f"\nMissing values before cleaning:")
@@ -74,9 +74,12 @@ df['SOLUTION_ENCODED'] = solution_encoder.fit_transform(df['SOLUTION USED'])
 encoders['COMMON PROBLEM'] = problem_encoder
 encoders['SOLUTION USED'] = solution_encoder
 
+# Create models directory
+os.makedirs('server/models', exist_ok=True)
+
 # Save encoders
 print("\n💾 Saving encoders...")
-with open('model_encoders.pkl', 'wb') as f:
+with open('server/models/model_encoders.pkl', 'wb') as f:
     pickle.dump(encoders, f)
 
 # Create mapping files for reference
@@ -90,7 +93,7 @@ mappings = {
     'num_solutions': len(solution_mapping)
 }
 
-with open('model_mappings.json', 'w') as f:
+with open('server/models/model_mappings.json', 'w') as f:
     json.dump(mappings, f, indent=2)
 
 print(f"✅ Saved {len(problem_mapping)} problem types")
@@ -154,10 +157,10 @@ print(f"📊 Solution Classifier Accuracy: {solution_accuracy:.2%}")
 
 # 9. Save models
 print("\n💾 Saving trained models...")
-with open('problem_classifier.pkl', 'wb') as f:
+with open('server/models/problem_classifier.pkl', 'wb') as f:
     pickle.dump(problem_model, f)
 
-with open('solution_classifier.pkl', 'wb') as f:
+with open('server/models/solution_classifier.pkl', 'wb') as f:
     pickle.dump(solution_model, f)
 
 # 10. Create model metadata
@@ -176,11 +179,11 @@ metadata = {
     }
 }
 
-with open('model_metadata.json', 'w') as f:
+with open('server/models/model_metadata.json', 'w') as f:
     json.dump(metadata, f, indent=2)
 
 print("\n✅ Model training complete!")
-print(f"📁 Files created:")
+print(f"📁 Files created in server/models/:")
 print(f"   - problem_classifier.pkl")
 print(f"   - solution_classifier.pkl")
 print(f"   - model_encoders.pkl")

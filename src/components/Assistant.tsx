@@ -646,17 +646,6 @@ const Assistant = () => {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const selectedDocs = getSelectedDocumentsInfo();
-    
-    if (selectedDocs.length === 0) {
-      toast({
-        title: "No documents selected",
-        description: "Please select at least one document for the AI to reference",
-        variant: "destructive",
-      });
-      return;
-    }
-
     // Add user message
     const userMessage: Message = { role: 'user', content: input };
     setMessages(prev => [...prev, userMessage]);
@@ -665,6 +654,68 @@ const Assistant = () => {
     setIsLoading(true);
 
     try {
+      // Check if we're in local model mode
+      if (aiMode === 'local-model') {
+        // Use local ML model - no documents needed
+        toast({
+          title: "🧠 Analyzing with Local Model",
+          description: "Processing your question with pre-trained model...",
+        });
+
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/local-model`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: userQuestion })
+        });
+
+        if (!response.ok) {
+          throw new Error('Local model API request failed');
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error || 'Unknown error from local model');
+        }
+
+        // Format response with problem and solution
+        const assistantMessage: Message = {
+          role: 'assistant',
+          content: `**🔍 Diagnosis:**\n${result.problem}\n\n**🔧 Recommended Solution:**\n${result.solution}\n\n---\n\n*Confidence: Problem ${(result.confidence?.problem * 100).toFixed(0)}%, Solution ${(result.confidence?.solution * 100).toFixed(0)}%*\n${result.vehicle_company ? `\n*Vehicle: ${result.vehicle_company}*` : ''}\n${result.source ? `\n*Source: ${result.source}*` : ''}`,
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+
+        // Save to history if user is logged in
+        if (currentUser) {
+          await saveChatMessage(userMessage);
+          await saveChatMessage(assistantMessage);
+        }
+
+        setIsLoading(false);
+
+        toast({
+          title: "✅ Diagnosis Complete",
+          description: "Found solution from trained model",
+        });
+
+        return;
+      }
+
+      // RAG Mode - original document-based logic
+      const selectedDocs = getSelectedDocumentsInfo();
+    
+      if (selectedDocs.length === 0) {
+        toast({
+          title: "No documents selected",
+          description: "Please select at least one document for the AI to reference",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        setMessages(prev => prev.slice(0, -1)); // Remove the user message
+        setInput(userQuestion); // Restore the input
+        return;
+      }
       // Retrieve relevant chunks from selected documents using RAG
       const selectedDocIds = selectedDocs
         .filter(doc => doc.documentId)
