@@ -1,0 +1,67 @@
+{
+  "appId": "com.fixora.vehicle-assistant",
+  "productName": "Fixora",
+  "directories": {
+    "output": "dist-electron",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "electron.js",
+    "electron-preload.js",
+    "server/**/*",
+    "node_modules/**/*",
+    "package.json",
+    "final dataset  for kaggle.csv"
+  ],
+  "extraResources": [
+    {
+      "from": "final dataset  for kaggle.csv",
+      "to": "dataset.csv"
+    },
+    {
+      "from": "server/models",
+      "to": "models"
+    }
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "public/logo.png",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "Fixora Vehicle Assistant",
+    "installerIcon": "public/logo.png",
+    "uninstallerIcon": "public/logo.png",
+    "license": "LICENSE.md"
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-Portable.${ext}"
+  },
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app-category.productivity",
+    "icon": "public/logo.png",
+    "artifactName": "${productName}-${version}-${os}.${ext}"
+  },
+  "linux": {
+    "target": ["AppImage", "deb"],
+    "category": "Utility",
+    "icon": "public/logo.png",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}"
+  },
+  "publish": null
+}

@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "author": "Yash Raj <2410030316@klh.edu.in>",
+  "main": "electron.js",
   "scripts": {
     "dev": "vite",
     "dev:server": "tsx watch server/index.ts",
@@ -13,7 +14,12 @@
     "build:server": "tsc --project tsconfig.server.json",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start:server": "node dist/server/index.js"
+    "start:server": "node dist/server/index.js",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:8081 && electron .\"",
+    "electron:build": "npm run build && npm run build:server && electron-builder",
+    "electron:build:win": "npm run build && npm run build:server && electron-builder --win",
+    "electron:build:portable": "npm run build && npm run build:server && electron-builder --win portable"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
