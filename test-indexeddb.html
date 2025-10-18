@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IndexedDB Persistence Test - Fixora</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 4px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .storage-info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        .storage-info h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .step {
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+        .step-number {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            width: 24px;
+            height: 24px;
+            line-height: 24px;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 IndexedDB Persistence Test</h1>
+        <p class="subtitle">Verify that PDF documents persist across page refreshes</p>
+
+        <div class="test-section">
+            <h3>📋 Test Instructions</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>Open the Fixora App:</strong> <a href="http://localhost:8080/" target="_blank">http://localhost:8080/</a>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>Upload a PDF:</strong> Drag & drop or click to upload any PDF document
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <strong>Wait for Processing:</strong> Wait until status shows "Ready" (green checkmark)
+            </div>
+            <div class="step">
+                <span class="step-number">4</span>
+                <strong>Refresh the Page:</strong> Press F5 or click the refresh button
+            </div>
+            <div class="step">
+                <span class="step-number">5</span>
+                <strong>Verify Restoration:</strong> Look for toast notification "📂 Documents Restored"
+            </div>
+            <div class="step">
+                <span class="step-number">6</span>
+                <strong>Check IndexedDB:</strong> Click the button below to inspect storage
+            </div>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button onclick="checkIndexedDB()">🔍 Check IndexedDB Storage</button>
+            <button onclick="clearStorage()">🗑️ Clear All Storage</button>
+            <button onclick="window.open('http://localhost:8080/', '_blank')">🚀 Open Fixora App</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="storageInfo"></div>
+
+        <div class="test-section">
+            <h3>✅ What to Expect</h3>
+            <ul>
+                <li>After upload, IndexedDB should contain: <code>FixoraDB</code></li>
+                <li>3 object stores: <code>documents</code>, <code>chunks</code>, <code>embeddings</code></li>
+                <li>After refresh, documents auto-restore (no re-upload needed)</li>
+                <li>You can immediately ask questions without re-processing</li>
+            </ul>
+        </div>
+
+        <div class="test-section">
+            <h3>🐛 Manual Testing with DevTools</h3>
+            <ol>
+                <li>Open Chrome DevTools (F12)</li>
+                <li>Go to <strong>Application</strong> tab</li>
+                <li>Expand <strong>IndexedDB</strong> in the left sidebar</li>
+                <li>Look for <strong>FixoraDB</strong></li>
+                <li>Check each store:
+                    <ul>
+                        <li><code>documents</code> - Original PDF files with metadata</li>
+                        <li><code>chunks</code> - Text segments extracted from PDFs</li>
+                        <li><code>embeddings</code> - 384-dimensional vector embeddings</li>
+                    </ul>
+                </li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        async function checkIndexedDB() {
+            const statusDiv = document.getElementById('status');
+            const storageDiv = document.getElementById('storageInfo');
+            
+            statusDiv.innerHTML = '<div class="status info">🔍 Checking IndexedDB...</div>';
+            
+            try {
+                // Open database
+                const request = indexedDB.open('FixoraDB', 1);
+                
+                request.onsuccess = function(event) {
+                    const db = event.target.result;
+                    
+                    // Check if stores exist
+                    const hasDocuments = db.objectStoreNames.contains('documents');
+                    const hasChunks = db.objectStoreNames.contains('chunks');
+                    const hasEmbeddings = db.objectStoreNames.contains('embeddings');
+                    
+                    if (hasDocuments && hasChunks && hasEmbeddings) {
+                        // Count items in each store
+                        const docTransaction = db.transaction(['documents'], 'readonly');
+                        const docStore = docTransaction.objectStore('documents');
+                        const docCountRequest = docStore.count();
+                        
+                        docCountRequest.onsuccess = function() {
+                            const docCount = docCountRequest.result;
+                            
+                            const chunkTransaction = db.transaction(['chunks'], 'readonly');
+                            const chunkStore = chunkTransaction.objectStore('chunks');
+                            const chunkCountRequest = chunkStore.count();
+                            
+                            chunkCountRequest.onsuccess = function() {
+                                const chunkCount = chunkCountRequest.result;
+                                
+                                const embTransaction = db.transaction(['embeddings'], 'readonly');
+                                const embStore = embTransaction.objectStore('embeddings');
+                                const embCountRequest = embStore.count();
+                                
+                                embCountRequest.onsuccess = function() {
+                                    const embCount = embCountRequest.result;
+                                    
+                                    if (docCount > 0) {
+                                        statusDiv.innerHTML = '<div class="status success">✅ IndexedDB is working! Documents are being persisted.</div>';
+                                        storageDiv.innerHTML = `
+                                            <div class="storage-info">
+                                                <h3>📊 Storage Statistics</h3>
+                                                <p><strong>Documents:</strong> ${docCount}</p>
+                                                <p><strong>Text Chunks:</strong> ${chunkCount}</p>
+                                                <p><strong>Embeddings:</strong> ${embCount}</p>
+                                                <p style="margin-top: 15px; color: #0c5460;">
+                                                    <strong>Status:</strong> Your PDFs are successfully persisted! 
+                                                    Try refreshing the app - they should load automatically.
+                                                </p>
+                                            </div>
+                                        `;
+                                    } else {
+                                        statusDiv.innerHTML = '<div class="status info">ℹ️ Database exists but no documents uploaded yet.</div>';
+                                        storageDiv.innerHTML = `
+                                            <div class="storage-info">
+                                                <h3>📊 Storage Statistics</h3>
+                                                <p><strong>Documents:</strong> 0</p>
+                                                <p style="margin-top: 15px; color: #856404;">
+                                                    Upload a PDF in the Fixora app to test persistence.
+                                                </p>
+                                            </div>
+                                        `;
+                                    }
+                                };
+                            };
+                        };
+                    } else {
+                        statusDiv.innerHTML = '<div class="status error">❌ Database structure is incomplete. Missing object stores.</div>';
+                    }
+                    
+                    db.close();
+                };
+                
+                request.onerror = function() {
+                    statusDiv.innerHTML = '<div class="status error">❌ Could not open database. Has Fixora been opened yet?</div>';
+                };
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        async function clearStorage() {
+            if (!confirm('Are you sure you want to clear all IndexedDB storage? This will delete all uploaded PDFs.')) {
+                return;
+            }
+            
+            const statusDiv = document.getElementById('status');
+            const storageDiv = document.getElementById('storageInfo');
+            
+            try {
+                const deleteRequest = indexedDB.deleteDatabase('FixoraDB');
+                
+                deleteRequest.onsuccess = function() {
+                    statusDiv.innerHTML = '<div class="status success">✅ Storage cleared successfully! Refresh Fixora app to see changes.</div>';
+                    storageDiv.innerHTML = '';
+                };
+                
+                deleteRequest.onerror = function() {
+                    statusDiv.innerHTML = '<div class="status error">❌ Failed to clear storage.</div>';
+                };
+            } catch (error) {
+                statusDiv.innerHTML = `<div class="status error">❌ Error: ${error.message}</div>`;
+            }
+        }
+        
+        // Auto-check on load
+        window.onload = function() {
+            setTimeout(checkIndexedDB, 500);
+        };
+    </script>
+</body>
+</html>
