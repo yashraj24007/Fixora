@@ -662,7 +662,8 @@ const Assistant = () => {
           description: "Processing your question with pre-trained model...",
         });
 
-        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/local-model`, {
+        const backendUrl = import.meta.env.VITE_BACKEND_URL?.replace('/api/chat', '') || 'http://localhost:3001';
+        const response = await fetch(`${backendUrl}/api/local-model`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ question: userQuestion })
