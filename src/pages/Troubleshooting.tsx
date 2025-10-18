@@ -64,8 +64,8 @@ const Troubleshooting = () => {
   const handleStartDiagnosis = (prompt: string) => {
     // Store the prompt in sessionStorage so the Assistant page can use it
     sessionStorage.setItem('autoPrompt', prompt);
-    // Navigate to the assistant page
-    navigate('/');
+    // Navigate to the AI assistant page
+    navigate('/demo');
   };
 
   return (

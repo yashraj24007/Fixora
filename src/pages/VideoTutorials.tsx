@@ -47,7 +47,8 @@ const VideoTutorials = () => {
       views: "125K",
       thumbnail: "🛢️",
       difficulty: "Beginner",
-      category: "Maintenance"
+      category: "Maintenance",
+      youtubeUrl: "https://www.youtube.com/watch?v=O1hF25Cowv8"
     },
     {
       title: "Brake Pad Replacement Step by Step",
@@ -55,7 +56,8 @@ const VideoTutorials = () => {
       views: "98K",
       thumbnail: "🔧",
       difficulty: "Intermediate",
-      category: "Maintenance"
+      category: "Maintenance",
+      youtubeUrl: "https://www.youtube.com/watch?v=6RQ9UabOIPg"
     },
     {
       title: "Diagnosing Check Engine Light P0420",
@@ -63,7 +65,8 @@ const VideoTutorials = () => {
       views: "87K",
       thumbnail: "⚠️",
       difficulty: "Advanced",
-      category: "Diagnostics"
+      category: "Diagnostics",
+      youtubeUrl: "https://www.youtube.com/watch?v=AUTbZYySPBE"
     },
     {
       title: "Battery Testing and Replacement",
@@ -71,7 +74,8 @@ const VideoTutorials = () => {
       views: "156K",
       thumbnail: "🔋",
       difficulty: "Beginner",
-      category: "Electrical"
+      category: "Electrical",
+      youtubeUrl: "https://www.youtube.com/watch?v=iI1o2hNy2hE"
     },
     {
       title: "Timing Belt Replacement - Honda",
@@ -79,7 +83,8 @@ const VideoTutorials = () => {
       views: "76K",
       thumbnail: "⚙️",
       difficulty: "Advanced",
-      category: "Engine Repair"
+      category: "Engine Repair",
+      youtubeUrl: "https://www.youtube.com/watch?v=l5MVL3VKQiM"
     },
     {
       title: "Air Filter Change - Quick Fix",
@@ -87,7 +92,8 @@ const VideoTutorials = () => {
       views: "210K",
       thumbnail: "🌬️",
       difficulty: "Beginner",
-      category: "Maintenance"
+      category: "Maintenance",
+      youtubeUrl: "https://www.youtube.com/watch?v=JDWLW8l5Vkk"
     },
     {
       title: "Spark Plug Inspection and Replacement",
@@ -95,7 +101,8 @@ const VideoTutorials = () => {
       views: "92K",
       thumbnail: "⚡",
       difficulty: "Intermediate",
-      category: "Engine Repair"
+      category: "Engine Repair",
+      youtubeUrl: "https://www.youtube.com/watch?v=aGNNqSbHCQI"
     },
     {
       title: "Troubleshooting Engine Overheating",
@@ -103,7 +110,8 @@ const VideoTutorials = () => {
       views: "68K",
       thumbnail: "🌡️",
       difficulty: "Intermediate",
-      category: "Diagnostics"
+      category: "Diagnostics",
+      youtubeUrl: "https://www.youtube.com/watch?v=O4NiXEqiJKg"
     },
     {
       title: "Wheel Alignment Basics",
@@ -111,7 +119,8 @@ const VideoTutorials = () => {
       views: "103K",
       thumbnail: "🎯",
       difficulty: "Intermediate",
-      category: "Maintenance"
+      category: "Maintenance",
+      youtubeUrl: "https://www.youtube.com/watch?v=wmtDSSVvRcE"
     }
   ];
 
@@ -194,6 +203,7 @@ const VideoTutorials = () => {
                 <Card 
                   key={index}
                   className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer group bg-card border-border"
+                  onClick={() => video.youtubeUrl && window.open(video.youtubeUrl, '_blank')}
                 >
                   {/* Thumbnail */}
                   <div className="relative h-48 bg-gradient-to-br from-primary/20 to-blue-600/20 flex items-center justify-center group-hover:scale-105 transition-transform">

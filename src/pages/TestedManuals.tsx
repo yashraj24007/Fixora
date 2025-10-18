@@ -350,6 +350,23 @@ const TestedManuals = () => {
                       ></div>
                     </div>
                   </div>
+
+                  {/* Try AI Assistant Button */}
+                  <Button 
+                    className="w-full mt-2 bg-primary hover:bg-primary/90"
+                    onClick={() => {
+                      sessionStorage.setItem('manualContext', JSON.stringify({
+                        title: manual.title,
+                        manufacturer: manual.manufacturer,
+                        year: manual.year,
+                        category: manual.category
+                      }));
+                      navigate('/demo');
+                    }}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Try AI Assistant
+                  </Button>
                 </div>
               </CardContent>
             </Card>
