@@ -8,7 +8,6 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { signIn, signInWithGoogle } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -245,7 +244,6 @@ const Login = () => {
           </button>
         </div>
       </div>
-      <Footer />
       </div>
     </>
   );
